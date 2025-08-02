@@ -4,20 +4,28 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/TurboMiki/devops-mini-lab.git'
+                git branch: 'main', url: 'https://github.com/TurboMiki/devops-mini-lab.git'
             }
         }
+
         stage('Terraform Validate') {
             steps {
                 dir('terraform') {
-                    sh 'terraform init'
-                    sh 'terraform validate'
+                    sh '''
+                        curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.8.4/terraform_1.8.4_linux_amd64.zip
+                        unzip -o terraform.zip
+                        chmod +x terraform
+                        ./terraform version
+                        ./terraform init
+                        ./terraform validate
+                    '''
                 }
             }
         }
+
         stage('Done') {
             steps {
-                echo 'Pipeline finished.'
+                echo 'All done!'
             }
         }
     }
