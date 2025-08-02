@@ -1,0 +1,24 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/TurboMiki/devops-mini-lab.git'
+            }
+        }
+        stage('Terraform Validate') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform init'
+                    sh 'terraform validate'
+                }
+            }
+        }
+        stage('Done') {
+            steps {
+                echo 'Pipeline finished.'
+            }
+        }
+    }
+}
