@@ -27,7 +27,7 @@ pipeline {
             steps {
                 dir('terraform') {
                     sh '''
-                        ./terraform apply
+                        ./terraform apply -auto-approve
                     '''
                 }
             }
