@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        TERRAFORM_VERSION = "1.8.4"
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -8,17 +12,34 @@ pipeline {
             }
         }
 
-        stage('Terraform Validate') {
+        stage('Install Terraform') {
             steps {
                 dir('terraform') {
                     sh '''
-                        curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.8.4/terraform_1.8.4_linux_amd64.zip
+                        curl -Lo terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
                         unzip -o terraform.zip
                         chmod +x terraform
-                        ./terraform version
-                        ./terraform init
-                        ./terraform validate
+                        mv terraform /usr/local/bin/terraform
                     '''
+                }
+            }
+        }
+
+        stage('Terraform Init & Validate') {
+            steps {
+                dir('terraform') {
+                    sh '''
+                        terraform init
+                        terraform validate
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform plan'
                 }
             }
         }
@@ -26,9 +47,7 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 dir('terraform') {
-                    sh '''
-                        ./terraform apply -auto-approve
-                    '''
+                    sh 'terraform apply -auto-approve'
                 }
             }
         }
